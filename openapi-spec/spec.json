@@ -1,0 +1,1053 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Healthy Plate API",
+    "description": "API for the Healthy Plate application, a meal planning and recipe management system.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Base URL for the API"
+    }
+  ],
+  "paths": {
+    "/credits-and-tier": {
+      "get": {
+        "summary": "Get user credits and tier plan",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "integer"
+                    },
+                    "tierPlan": {
+                      "type": "string",
+                      "enum": [
+                        "FREE",
+                        "PRO",
+                        "PREMIUM"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing User ID"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/generate-recipe": {
+      "post": {
+        "summary": "Generate a recipe using AI",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "time",
+                  "calories_kcal",
+                  "protein_g",
+                  "mealType",
+                  "skillLevel",
+                  "cuisine"
+                ],
+                "properties": {
+                  "time": {
+                    "type": "integer"
+                  },
+                  "calories_kcal": {
+                    "type": "integer"
+                  },
+                  "protein_g": {
+                    "type": "number"
+                  },
+                  "mealType": {
+                    "type": "string",
+                    "enum": [
+                      "Breakfast",
+                      "Lunch",
+                      "Dinner"
+                    ]
+                  },
+                  "skillLevel": {
+                    "type": "string",
+                    "enum": [
+                      "Beginner",
+                      "Intermediate",
+                      "Advanced"
+                    ]
+                  },
+                  "cuisine": {
+                    "type": "string"
+                  },
+                  "additionalPrompt": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recipe generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipeObject"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/meals": {
+      "get": {
+        "summary": "Get meal plans for a user",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of meal plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mealPlans": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MealPlan"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing userId"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create or update a meal plan",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "date",
+                  "mealType",
+                  "userId",
+                  "recipeId"
+                ],
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "mealType": {
+                    "$ref": "#/components/schemas/MealType"
+                  },
+                  "userId": {
+                    "type": "string"
+                  },
+                  "recipeId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Meal plan saved successfully"
+          },
+          "400": {
+            "description": "Missing fields"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/recipes": {
+      "get": {
+        "summary": "Get paginated recipes",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 6
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recipes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recipes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RecipeBrief"
+                      }
+                    },
+                    "totalPages": {
+                      "type": "integer"
+                    },
+                    "currentPage": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing userId"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/personal-list": {
+      "get": {
+        "summary": "Fetch all personal list items",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonalListItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new personal list item",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ingredientName",
+                  "meal",
+                  "tags"
+                ],
+                "properties": {
+                  "ingredientName": {
+                    "type": "string"
+                  },
+                  "meal": {
+                    "$ref": "#/components/schemas/MealType"
+                  },
+                  "tags": {
+                    "$ref": "#/components/schemas/DatePlan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Toggle completion status of an item",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "completed"
+                ],
+                "properties": {
+                  "completed": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a personal list item",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "item-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item deleted"
+          }
+        }
+      }
+    },
+    "/preferences": {
+      "get": {
+        "summary": "Get user preferences",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User preferences",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferences"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Update user preferences",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPreferencesUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preferences updated successfully"
+          }
+        }
+      }
+    },
+    "/statistics": {
+      "get": {
+        "summary": "Get dashboard metrics",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plannedMeals": {
+                      "type": "integer"
+                    },
+                    "planningProgress": {
+                      "type": "integer"
+                    },
+                    "dailyCalories": {
+                      "type": "integer"
+                    },
+                    "savedRecipes": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/toggle-favourite": {
+      "post": {
+        "summary": "Toggle recipe favourite status",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "recipeId",
+                  "favourite"
+                ],
+                "properties": {
+                  "recipeId": {
+                    "type": "string"
+                  },
+                  "favourite": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Favourite status toggled successfully"
+          }
+        }
+      }
+    },
+    "/upcoming-meals": {
+      "get": {
+        "summary": "Get upcoming meals grouped by date",
+        "parameters": [
+          {
+            "name": "user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of upcoming meals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meals": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "breakfast": {
+                            "$ref": "#/components/schemas/RecipeBrief"
+                          },
+                          "lunch": {
+                            "$ref": "#/components/schemas/RecipeBrief"
+                          },
+                          "dinner": {
+                            "$ref": "#/components/schemas/RecipeBrief"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/save-recipe-ai": {
+      "post": {
+        "summary": "Save an AI-generated recipe",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "recipeName",
+                  "description",
+                  "ownerId"
+                ],
+                "properties": {
+                  "recipeName": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "timeToPrepare": {
+                    "type": "integer"
+                  },
+                  "calories": {
+                    "type": "integer"
+                  },
+                  "protein": {
+                    "type": "number"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "mealType": {
+                    "type": "string"
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "skillLevel": {
+                    "type": "string"
+                  },
+                  "cuisine": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "keywords": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "ownerId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recipe saved successfully"
+          }
+        }
+      }
+    },
+    "/recipe-manual": {
+      "post": {
+        "summary": "Save a manually created recipe",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "description",
+                  "ownerId"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "time": {
+                    "type": "integer"
+                  },
+                  "calories_kcal": {
+                    "type": "integer"
+                  },
+                  "protein_g": {
+                    "type": "number"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "mealType": {
+                    "type": "string"
+                  },
+                  "steps": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "skillLevel": {
+                    "type": "string"
+                  },
+                  "cuisine": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "favourite": {
+                    "type": "boolean"
+                  },
+                  "ownerId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recipe saved successfully"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RecipeObject": {
+        "type": "object",
+        "properties": {
+          "recipeName": {
+            "type": "string"
+          },
+          "timeToPrepare": {
+            "type": "integer"
+          },
+          "description": {
+            "type": "string"
+          },
+          "calories": {
+            "type": "integer"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mealType": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skillLevel": {
+            "type": "string"
+          },
+          "cuisine": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RecipeBrief": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "time": {
+            "type": "integer"
+          },
+          "calories_kcal": {
+            "type": "integer"
+          },
+          "protein_g": {
+            "type": "number"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "favourite": {
+            "type": "boolean"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MealPlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mealType": {
+            "$ref": "#/components/schemas/MealType"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "recipeId": {
+            "type": "string"
+          },
+          "recipe": {
+            "$ref": "#/components/schemas/RecipeBrief"
+          }
+        }
+      },
+      "PersonalListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ingrediantName": {
+            "type": "string"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/DatePlan"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mealType": {
+            "$ref": "#/components/schemas/MealType"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "userId": {
+            "type": "string"
+          }
+        }
+      },
+      "UserPreferences": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "goal": {
+            "$ref": "#/components/schemas/Goal"
+          },
+          "calorieRequirement": {
+            "type": "number"
+          },
+          "proteinRequirement": {
+            "type": "number"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "dietaryPreferences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "height": {
+            "type": "number"
+          },
+          "workoutCommitment": {
+            "type": "integer"
+          },
+          "preferredCuisines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "activityLevel": {
+            "$ref": "#/components/schemas/ActivityLevel"
+          }
+        }
+      },
+      "UserPreferencesUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "goal": {
+            "type": "string"
+          },
+          "calorieRequirement": {
+            "type": "number"
+          },
+          "proteinRequirement": {
+            "type": "number"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "workoutCommitment": {
+            "type": "integer"
+          },
+          "dietaryPreferences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allergies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preferredCuisines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "activityLevel": {
+            "type": "string"
+          }
+        }
+      },
+      "MealType": {
+        "type": "string",
+        "enum": [
+          "BREAKFAST",
+          "LUNCH",
+          "DINNER"
+        ]
+      },
+      "Goal": {
+        "type": "string",
+        "enum": [
+          "MUSCLE_GAIN",
+          "WEIGHT_LOSS",
+          "WEIGHT_GAIN"
+        ]
+      },
+      "ActivityLevel": {
+        "type": "string",
+        "enum": [
+          "ACTIVE",
+          "MODERATE",
+          "LESS_ACTIVE"
+        ]
+      },
+      "DatePlan": {
+        "type": "string",
+        "enum": [
+          "TODAY",
+          "TOMORROW",
+          "DAY_AFTER_TOMORROW"
+        ]
+      },
+      "SkillLevel": {
+        "type": "string",
+        "enum": [
+          "BEGINNER",
+          "INTERMEDIATE",
+          "ADVANCED"
+        ]
+      }
+    }
+  }
+}
