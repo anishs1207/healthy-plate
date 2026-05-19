@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { UserPreferences } from '@/types';
 import axios from 'axios';
 import { MessageSquare, Send } from 'lucide-react';
 import { MessageList } from './MessageList';
@@ -34,7 +35,7 @@ export const NutritionCoach: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [newMessage, setNewMessage] = useState('');
   const [_, setIsTyping] = useState(false);
-  const [userPreferences, setUserPreferences] = useState<any>(null);
+  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
 
   function formatEnumString(value: string): string {
     return value
@@ -56,7 +57,7 @@ export const NutritionCoach: React.FC = () => {
         });
         const prefs = response.data;
         setUserPreferences(prefs);
-      } catch (err: any) {
+      } catch (err) {
         toast.error('Failed to load preferences.');
         console.error('Error fetching preferences:', err);
       }
@@ -82,7 +83,7 @@ export const NutritionCoach: React.FC = () => {
     );
   }
 
-  const prefs = userPreferences || {};
+  const prefs = userPreferences || {} as UserPreferences;
 
   const bodyPreferences = `
 <user_preferences>
@@ -186,18 +187,23 @@ ${prefs.allergies?.length ? `\nAllergies: ${prefs.allergies.join(', ')}` : ''}
           });
         }
       }, 150);
-    } catch (error: any) {
-      console.error('Error calling Gemini API:', error.response?.data || error.message);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Error calling Gemini API:', error.response?.data || error.message);
 
-      // Handle specific Gemini API key errors
-      if (
-        error.response?.status === 400 ||
-        error.response?.status === 401 ||
-        error.response?.data?.error?.code === 400 ||
-        error.response?.data?.error?.code === 401
-      ) {
+        // Handle specific Gemini API key errors
+        if (
+          error.response?.status === 400 ||
+          error.response?.status === 401 ||
+          error.response?.data?.error?.code === 400 ||
+          error.response?.data?.error?.code === 401
+        ) {
         toast.error("Invalid or missing Gemini API key. Please check your key and try again.");
+        } else {
+          toast.error("Something went wrong. Please try again later.");
+        }
       } else {
+        console.error('Error calling Gemini API:', (error as Error).message);
         toast.error("Something went wrong. Please try again later.");
       }
 

@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { fetchWithCache, redis } from "@/lib/redis";
 
 export const dynamic = 'force-dynamic';
 
@@ -11,10 +12,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
     }
 
-    const items = await prisma.personalListItem.findMany({
-      where: { userId },
-      orderBy: { date: "desc" },
-    });
+    const cacheKey = `personalList:${userId}`;
+    const items = await fetchWithCache(cacheKey, async () => {
+      return await prisma.personalListItem.findMany({
+        where: { userId },
+        orderBy: { date: "desc" },
+      });
+    }, 3600);
 
     return NextResponse.json(items);
   } catch (error) {
@@ -51,6 +55,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const cacheKey = `personalList:${userId}`;
+    try {
+      await redis.del(cacheKey);
+    } catch (redisError) {
+      console.error('Redis DEL Error:', redisError);
+    }
+
     return NextResponse.json(newItem, { status: 201 });
   } catch (error) {
     console.error("POST /api/personal-list error:", error);
@@ -85,6 +96,13 @@ export async function PATCH(req: NextRequest) {
       data: { completed: completed },
     });
 
+    const cacheKey = `personalList:${userId}`;
+    try {
+      await redis.del(cacheKey);
+    } catch (redisError) {
+      console.error('Redis DEL Error:', redisError);
+    }
+
     return NextResponse.json(updatedItem);
   } catch (error) {
     console.error("PATCH /api/personal-list/[id] error:", error);
@@ -114,6 +132,13 @@ export async function DELETE(req: NextRequest) {
     await prisma.personalListItem.delete({
       where: { id },
     });
+
+    const cacheKey = `personalList:${userId}`;
+    try {
+      await redis.del(cacheKey);
+    } catch (redisError) {
+      console.error('Redis DEL Error:', redisError);
+    }
 
     return NextResponse.json({ message: "Item deleted" });
   } catch (error) {

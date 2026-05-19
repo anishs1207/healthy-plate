@@ -74,9 +74,9 @@ const Preferences: React.FC = () => {
       data.goal = formatEnumString(data.goal)
       data.activityLevel = formatEnumString(data.activityLevel)
       setUserPreferences(response.data);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error fetching user preferences', err);
-      setError(err.message || 'Failed to load preferences.');
+      setError((err as Error).message || 'Failed to load preferences.');
       toast.error("Failed to load preferences. Please try again.");
     } finally {
       setLoading(false);
@@ -163,9 +163,9 @@ const Preferences: React.FC = () => {
       });
       console.log('Update response:', response.data);
       toast.success('Preferences saved successfully!');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error saving user preferences', err);
-      toast.error(`Failed to save preferences: ${err.response?.data?.message || err.message}`);
+      toast.error(`Failed to save preferences: ${axios.isAxiosError(err) ? err.response?.data?.message || err.message : (err as Error).message}`);
     } finally {
       setSaving(false); // End saving
     }

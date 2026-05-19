@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { trackMetrics, mealPlanCreationCounter } from '@/metrics';
+import { fetchWithCache, redis } from '@/lib/redis';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,44 +16,47 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
       }
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const cacheKey = `meals:${userId}`;
+      const adjustedMealPlans = await fetchWithCache(cacheKey, async () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-      const endDate = new Date(today);
-      endDate.setDate(endDate.getDate() + 5);
+        const endDate = new Date(today);
+        endDate.setDate(endDate.getDate() + 5);
 
-      await prisma.mealPlan.deleteMany({
-        where: {
-          userId,
-          date: {
-            lt: today,
+        await prisma.mealPlan.deleteMany({
+          where: {
+            userId,
+            date: {
+              lt: today,
+            },
           },
-        },
-      });
+        });
 
-      const mealPlans = await prisma.mealPlan.findMany({
-        where: {
-          userId,
-          date: {
-            gte: today,
-            lte: endDate,
+        const mealPlans = await prisma.mealPlan.findMany({
+          where: {
+            userId,
+            date: {
+              gte: today,
+              lte: endDate,
+            },
           },
-        },
-        orderBy: {
-          date: 'asc',
-        },
-        include: {
-          recipe: true,
-        },
-      });
+          orderBy: {
+            date: 'asc',
+          },
+          include: {
+            recipe: true,
+          },
+        });
 
-      const adjustedMealPlans = mealPlans.map((plan) => ({
-        ...plan,
-        date: new Date(new Date(plan.date).setDate(new Date(plan.date).getDate() + 1)),
-      }));
+        return mealPlans.map((plan) => ({
+          ...plan,
+          date: new Date(new Date(plan.date).setDate(new Date(plan.date).getDate() + 1)),
+        }));
+      }, 3600);
 
 
-      console.log (mealPlans);
+      console.log (adjustedMealPlans);
 
       return NextResponse.json({ mealPlans: adjustedMealPlans });
     } catch (error) {
@@ -96,6 +100,15 @@ export async function POST(req: NextRequest) {
       });
 
       mealPlanCreationCounter.inc();
+
+      const cacheKey = `meals:${userId}`;
+      const upcomingCacheKey = `upcomingMeals:${userId}`;
+      const statsCacheKey = `statistics:${userId}`;
+      try {
+        await redis.del(cacheKey, upcomingCacheKey, statsCacheKey);
+      } catch (redisError) {
+        console.error('Redis DEL Error:', redisError);
+      }
 
       return NextResponse.json({ success: true, mealPlan });
     } catch (error) {

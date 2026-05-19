@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { redis, fetchWithCache } from "@/lib/redis";
 
 export const dynamic = 'force-dynamic';
 
@@ -14,28 +15,38 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "User ID missing" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const cacheKey = `preferences:${userId}`;
+    
+    const preferences = await fetchWithCache(cacheKey, async () => {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
 
-    if (!user) {
+      if (!user) {
+        return null;
+      }
+
+      return {
+        name: user.name,
+        age: user.age,
+        goal: user.goal,
+        calorieRequirement: user.calorieRequirement,
+        proteinRequirement: user.proteinRequirement,
+        weight: user.targetWeight,
+        dietaryPreferences: user.dietaryPreferences,
+        allergies: user.dietaryRestrictions,
+        height: user.height,
+        workoutCommitment: user.workoutCommitment,
+        preferredCuisines: user.preferredCuisines,
+        activityLevel: user.activityLevel,
+      };
+    }, 3600);
+
+    if (!preferences) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({
-      name: user.name,
-      age: user.age,
-      goal: user.goal,
-      calorieRequirement: user.calorieRequirement,
-      proteinRequirement: user.proteinRequirement,
-      weight: user.targetWeight,
-      dietaryPreferences: user.dietaryPreferences,
-      allergies: user.dietaryRestrictions,
-      height: user.height,
-      workoutCommitment: user.workoutCommitment,
-      preferredCuisines: user.preferredCuisines,
-      activityLevel: user.activityLevel,
-    });
+    return NextResponse.json(preferences);
 
   } catch (error) {
     console.error("Error at /api/preferences:", error);
@@ -127,6 +138,13 @@ export async function POST(req: NextRequest) {
     proteinRequirement,
   },
 });
+
+    const cacheKey = `preferences:${userId}`;
+    try {
+      await redis.del(cacheKey);
+    } catch (redisError) {
+      console.error("Redis DEL Error:", redisError);
+    }
 
     return NextResponse.json({ success: true, user: updatedUser });
 

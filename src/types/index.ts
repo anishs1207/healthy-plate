@@ -28,23 +28,18 @@ export interface Recipe {
   }
   
   export interface UserPreferences {
-    dietaryRestrictions: string[];
-    allergies: string[];
-    cuisinePreferences: string[];
-    calorieTarget: number;
-    proteinTarget: number;
-    gender: 'male' | 'female' | 'other';
+    name?: string;
     age: number;
+    goal: string;
+    calorieRequirement: number;
+    proteinRequirement: number;
     weight: number;
+    dietaryPreferences: string[];
+    allergies: string[];
     height: number;
-    activityLevel: 'sedentary' | 'light' | 'moderate' | 'very' | 'extra';
-    goal: 'maintain' | 'lose' | 'gain' | 'muscle';
-    mealPreferences: {
-      breakfast: boolean;
-      lunch: boolean;
-      dinner: boolean;
-      snacks: boolean;
-    };
+    workoutCommitment: number;
+    preferredCuisines: string[];
+    activityLevel: string;
   }
   
   export interface User {

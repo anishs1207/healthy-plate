@@ -102,8 +102,8 @@ const ShoppingList: React.FC = () => {
       });
 
       setPersonalListItems(updatedItems);
-    } catch (error: any) {
-      toast.error(`Failed to fetch personal list: ${error.message}`);
+    } catch (error) {
+      toast.error(`Failed to fetch personal list: ${(error as Error).message}`);
     } finally {
       setLoadingPersonalList(false);
     }
@@ -234,7 +234,7 @@ const ShoppingList: React.FC = () => {
           />
           <select
             value={newMealType}
-            onChange={(e) => setNewMealType(e.target.value as any)}
+            onChange={(e) => setNewMealType(e.target.value as 'Breakfast' | 'Lunch' | 'Dinner' | '')}
             className="px-4 py-2 border rounded text-sm dark:bg-gray-800 dark:text-white"
           >
             <option value="">Select Meal</option>
@@ -244,7 +244,7 @@ const ShoppingList: React.FC = () => {
           </select>
           <select
             value={newDayTag}
-            onChange={(e) => setNewDayTag(e.target.value as any)}
+            onChange={(e) => setNewDayTag(e.target.value as 'Today' | 'Tomorrow' | '')}
             className="px-4 py-2 border rounded text-sm dark:bg-gray-800 dark:text-white"
           >
             <option value="">Select Day</option>
@@ -276,7 +276,7 @@ const ShoppingList: React.FC = () => {
                 <>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => togglePersonalListItemCompleted(item as any)}
+                      onClick={() => togglePersonalListItemCompleted(item as unknown as PersonalListItem)}
                       disabled={togglingItemId === item.id}
                       className={`cursor-pointer w-5 h-5 flex items-center justify-center rounded-full border-2 ${item.completed
                         ? 'bg-emerald-500 border-emerald-500'

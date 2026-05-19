@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Recipe, MonthData } from '@/types';
+import { Recipe, MonthData, DayMeals } from '@/types';
 import { Timer, Dumbbell, Flame } from "lucide-react";
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -62,7 +62,7 @@ const CalendarPage: React.FC = () => {
       const response = await fetch(`/api/meals?userId=${USER_ID}`);
       const data = await response.json();
 
-      const mealPlansByDate: Record<string, any[]> = {};
+      const mealPlansByDate: Record<string, { mealType: string; recipe: Recipe }[]> = {};
       for (const plan of data.mealPlans) {
         const dateKey = plan.date.split('T')[0];
         if (!mealPlansByDate[dateKey]) {
@@ -80,12 +80,12 @@ const CalendarPage: React.FC = () => {
         const dateStr = currentDate.toISOString().split('T')[0];
 
         const meals = mealPlansByDate[dateStr] || [];
-        const dayObj: any = {
+        const dayObj: DayMeals = {
           date: dateStr,
         };
 
         for (const meal of meals) {
-          const key = meal.mealType.toLowerCase();
+          const key = meal.mealType.toLowerCase() as keyof Omit<DayMeals, 'date'>;
           dayObj[key] = meal.recipe;
         }
 

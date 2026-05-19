@@ -7,7 +7,7 @@ export * from "./businessMetrics";
 
 import { requestCounter, requestDuration, activeRequestsCounter } from "./httpRequestMetrics";
 
-export async function trackMetrics(method: string, route: string, handler: () => Promise<any>) {
+export async function trackMetrics(method: string, route: string, handler: () => Promise<Response>) {
     const startTime = Date.now();
     activeRequestsCounter.inc();
 

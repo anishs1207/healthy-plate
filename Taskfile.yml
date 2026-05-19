@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  up:
+    desc: Start all services in the background
+    cmds:
+      - docker compose up -d
+
+  down:
+    desc: Stop and remove all services
+    cmds:
+      - docker compose down
+
+  logs:
+    desc: View logs for all services
+    cmds:
+      - docker compose logs -f

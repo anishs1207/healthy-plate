@@ -68,7 +68,7 @@ export default function BusinessMetrics() {
         return () => clearInterval(interval);
     }, []);
 
-    const formatValue = (stat: any, v: number) =>
+    const formatValue = (stat: { percent?: boolean; currency?: boolean }, v: number) =>
         stat.percent ? `${v.toFixed(1)}%` : stat.currency ? `₹${v.toLocaleString()}` : Math.round(v);
 
     return (

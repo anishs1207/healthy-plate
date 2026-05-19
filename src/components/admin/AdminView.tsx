@@ -17,7 +17,7 @@ const sampleEmployees = [
     { id: 3, name: "Arpan" },
 ];
 
-export default function AdminView({ goBack: _goBack }: any) {
+export default function AdminView({ goBack: _goBack }: { goBack?: () => void }) {
     const dispatch = useAppDispatch();
     const tasks = useAppSelector(state => state.tasks.tasks);
     const _ideas = useAppSelector(state => state.tasks.ideas);

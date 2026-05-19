@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { UserPreferences } from '@/types';
 import { NavLink } from './NavLink';
 import {
   Home,
@@ -32,14 +33,14 @@ function formatEnumString(value: string): string {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ closeMenu, userId }) => {
-  const badges: any = {
+  const badges: Record<string, string> = {
     free: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
     premium: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white',
     pro: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'
   };
   const [credits, _setCredits] = useState<number>(0);
   const [_plan, _setPlan] = useState("FREE");
-  const [userPreferences, setUserPreferences] = useState<any>(null);
+  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
 
@@ -54,7 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ closeMenu, userId }) => {
         });
         const prefs = response.data;
         setUserPreferences(prefs);
-      } catch (err: any) {
+      } catch (err) {
         toast.error('Failed to load preferences.');
         console.error('Error fetching preferences:', err);
       }
@@ -66,7 +67,7 @@ const Navbar: React.FC<NavbarProps> = ({ closeMenu, userId }) => {
     }
   }, [userId, BACKEND_URL]);
 
-  const prefs = userPreferences || {};
+  const prefs = userPreferences || {} as UserPreferences;
 
   const prompt = `
 <core_identity>\n\

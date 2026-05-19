@@ -146,7 +146,7 @@ const PricingSection: React.FC = () => {
               limitations={plan.limitations}
               highlight={plan.highlight}
               buttonText={plan.buttonText}
-              buttonVariant={plan.buttonVariant as any}
+              buttonVariant={plan.buttonVariant as "default" | "outline" | "secondary"}
             />
           ))}
         </div>

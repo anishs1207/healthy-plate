@@ -221,7 +221,7 @@ const Dashboard: React.FC = () => {
                   </div>
 
                   {['breakfast', 'lunch', 'dinner'].map((meal) => {
-                    const mealData = (day as any)[meal];
+                    const mealData = day[meal as 'breakfast' | 'lunch' | 'dinner'];
                     const mealIcons: Record<string, string> = {
                       breakfast: 'bg-amber-100 text-amber-600',
                       lunch: 'bg-blue-100 text-blue-600',

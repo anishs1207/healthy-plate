@@ -11,7 +11,7 @@ import { Trash2, Pencil, Plus, Bug, Briefcase } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addTask, updateTask, deleteTask, updateTaskStatus, Task } from "@/store/slices/tasksSlice";
 
-export default function WorkerView({ goBack: _goBack }: any) {
+export default function WorkerView({ goBack: _goBack }: { goBack?: () => void }) {
     const dispatch = useAppDispatch();
     const tasks = useAppSelector(state => state.tasks.tasks);
 

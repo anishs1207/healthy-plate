@@ -1,6 +1,7 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { trackMetrics, recipeCreationCounter } from "@/metrics";
+import { redis } from "@/lib/redis";
 
 export const dynamic = 'force-dynamic';
 
@@ -62,6 +63,13 @@ export async function POST(req: NextRequest) {
       });
 
       recipeCreationCounter.inc();
+
+      const statsCacheKey = `statistics:${ownerId}`;
+      try {
+        await redis.del(statsCacheKey);
+      } catch (redisError) {
+        console.error('Redis DEL Error:', redisError);
+      }
 
       return NextResponse.json({ success: true, recipe });
     } catch (error) {
