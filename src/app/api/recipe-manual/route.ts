@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
       ownerId,
     } = body;
 
-    // Validation
     if (!title || !description || !ownerId) {
       return NextResponse.json(
         { error: "Missing required fields: title, description, ownerId" },
@@ -36,8 +35,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Enum conversion checks if necessary
+    
     const mealTypeEnum = mealType.toUpperCase();
     const skillLevelEnum = skillLevel.toUpperCase();
 

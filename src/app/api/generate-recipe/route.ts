@@ -118,8 +118,8 @@ export async function POST(req: NextRequest) {
     try {
       const cleaned = responseText
         .trim()
-        .replace(/^(```json|```|'''json|''')/gi, "") // removes any opening block
-        .replace(/(```|''')$/gi, "") // removes any closing block
+        .replace(/^(```json|```|'''json|''')/gi, "")
+        .replace(/(```|''')$/gi, "")
         .trim();
 
       parsed = JSON.parse(cleaned);
@@ -130,8 +130,6 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-
-    console.log(parsed);
 
     return NextResponse.json(parsed);
   } catch (error) {

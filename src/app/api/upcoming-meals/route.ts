@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     today.setHours(0, 0, 0, 0);
 
     const endDate = new Date(today);
-    endDate.setDate(endDate.getDate() + 3); // Today + next 3 days
+    endDate.setDate(endDate.getDate() + 3); 
 
     const mealPlans = await prisma.mealPlan.findMany({
       where: {

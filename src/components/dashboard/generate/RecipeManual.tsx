@@ -22,8 +22,8 @@ const RecipeGenerator: React.FC = () => {
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [newIngredient, setNewIngredient] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [_showSuccess, setShowSuccess] = useState(false);
+  const [_userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -78,7 +78,7 @@ const RecipeGenerator: React.FC = () => {
         favourite: false,
       };
 
-      const response = await axios.post("/api/recipe-manual", payload);
+      await axios.post("/api/recipe-manual", payload);
 
       toast.success("Recipe created successfully!");
       setTitle('');

@@ -37,8 +37,8 @@ const Navbar: React.FC<NavbarProps> = ({ closeMenu, userId }) => {
     premium: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white',
     pro: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'
   };
-  const [credits, setCredits] = useState<number>(0);
-  const [plan, setPlan] = useState("FREE");
+  const [credits, _setCredits] = useState<number>(0);
+  const [_plan, _setPlan] = useState("FREE");
   const [userPreferences, setUserPreferences] = useState<any>(null);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
@@ -64,7 +64,7 @@ const Navbar: React.FC<NavbarProps> = ({ closeMenu, userId }) => {
       fetchUserPreferences();
 
     }
-  }, [userId]);
+  }, [userId, BACKEND_URL]);
 
   const prefs = userPreferences || {};
 

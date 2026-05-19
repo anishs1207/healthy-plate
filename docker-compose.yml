@@ -1,14 +1,37 @@
-version: '3.8'
+version: "3.8"
+
 services:
-  app:
-    image: openai-demo-app
+  node-app:
     build:
-      context: ./
-      target: dev
-      dockerfile: Dockerfile
-    volumes:
-        - .:/app
-        - /app/node_modules
-        - /app/.next
+      context: .
+      dockerfile: dockerfile
     ports:
       - "3000:3000"
+    networks:
+      - monitoring
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    networks:
+      - monitoring
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+networks:
+  monitoring:

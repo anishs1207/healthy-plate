@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db"; // Make sure this path points correctly to your Prisma client
+import prisma from "@/lib/db"; 
 
 export const dynamic = "force-dynamic";
 

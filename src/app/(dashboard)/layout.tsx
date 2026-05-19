@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import Navbar from './_components/NavBar';
+import Navbar from '@/components/dashboard/NavBar';
 import { Menu } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { useSession } from 'next-auth/react';

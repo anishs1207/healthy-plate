@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Recipe } from '@/types';
-import RecipeCard from '@/app/(dashboard)/dashboard/_components/RecipeCard';
+import RecipeCard from '@/components/dashboard/search/RecipeCard';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -33,7 +33,7 @@ const SearchRecipe: React.FC = () => {
     }
   }, [status, router]);
 
-  const fetchRecipes = async (page: number, search = '') => {
+  const fetchRecipes = React.useCallback(async (page: number, search = '') => {
     setIsLoading(true);
     setRecipes([]);
 
@@ -57,11 +57,11 @@ const SearchRecipe: React.FC = () => {
       console.error('Failed to fetch recipes:', err);
       setIsLoading(false);
     }
-  };
+  }, [session?.user?.id]);
 
   useEffect(() => {
     fetchRecipes(currentPage, searchTerm);
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, fetchRecipes]);
 
   if (status === 'loading') {
     return (

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import PriceCard from './_components/PriceCard';
+import PriceCard from "@/components/landing/pricing/PriceCard";
 
 const plans = [
   {

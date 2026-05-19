@@ -30,7 +30,7 @@ export default function BusinessMetrics() {
         }))
     );
 
-    const containerRefs = useRef([]);
+    const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -68,7 +68,7 @@ export default function BusinessMetrics() {
         return () => clearInterval(interval);
     }, []);
 
-    const formatValue = (stat, v) =>
+    const formatValue = (stat: any, v: number) =>
         stat.percent ? `${v.toFixed(1)}%` : stat.currency ? `₹${v.toLocaleString()}` : Math.round(v);
 
     return (
@@ -101,7 +101,7 @@ export default function BusinessMetrics() {
                                 <p className="text-2xl font-bold">{formatValue(s, latest)}</p>
 
                                 <div className="relative h-20 mt-3 overflow-hidden">
-                                    <div ref={el => (containerRefs.current[i] = el)} className="w-full h-full flex">
+                                    <div ref={el => { containerRefs.current[i] = el; }} className="w-full h-full flex">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <LineChart data={s.trend}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.4} />

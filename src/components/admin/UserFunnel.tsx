@@ -28,7 +28,7 @@ export default function FunnelTraffic() {
     useEffect(() => {
         const interval = setInterval(() => {
             setData((prev) =>
-                prev.map((item, i) => {
+                prev.map((item, _i) => {
                     const random = (Math.random() - 0.5) * 300;
                     const newVal = Math.max(item.value + random, 0);
                     return { ...item, value: Math.round(newVal) };
@@ -39,7 +39,6 @@ export default function FunnelTraffic() {
         return () => clearInterval(interval);
     }, []);
 
-    //@ts-expect-error
     const max = data[0].value;
 
     return (

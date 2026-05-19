@@ -47,7 +47,6 @@ export async function GET(req: NextRequest) {
       plannedMeals.length > 0 ? totalCalories / plannedMeals.length : 0;
     const dailyCalories = Math.round(avgCalories * 3);
 
-    // 6. Get count of saved recipes
     const savedRecipes = await prisma.recipe.count();
 
     return NextResponse.json({

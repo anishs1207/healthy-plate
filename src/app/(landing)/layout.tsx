@@ -1,4 +1,4 @@
-import { Navbar, Footer } from "../_components";
+import { Navbar, Footer } from "@/components/landing";
 
 export default function Layout({
   children,
@@ -6,10 +6,10 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-   <>
-   <Navbar/>
-   {children}
-   <Footer/>
-   </>
+    <>
+      <Navbar />
+      {children}
+      <Footer />
+    </>
   );
 }

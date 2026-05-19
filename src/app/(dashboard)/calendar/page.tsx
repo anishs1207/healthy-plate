@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import MonthView from './_components/MonthView';
 import { Recipe, MonthData } from '@/types';
 import { Timer, Dumbbell, Flame } from "lucide-react";
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import axios from "axios";
+import MonthView from "@/components/dashboard/calendar/MonthView";
 
 const SkeletonMealCard: React.FC = () => {
   return (
@@ -105,7 +105,7 @@ const CalendarPage: React.FC = () => {
   }, [USER_ID]);
 
 
-  const fetchRecipes = async (pageNum: number) => {
+  const fetchRecipes = useCallback(async (pageNum: number) => {
     try {
       const response = await axios.get(`/api/recipe-meal`, {
         params: {
@@ -133,7 +133,7 @@ const CalendarPage: React.FC = () => {
     } catch (error) {
       console.error('Error fetching recipes:', error);
     }
-  };
+  }, [session?.user?.id]);
 
 
   useEffect(() => {
@@ -142,7 +142,7 @@ const CalendarPage: React.FC = () => {
     setHasMore(true);
     fetchMealPlans();
     fetchRecipes(1);
-  }, [fetchMealPlans]);
+  }, [fetchMealPlans, fetchRecipes]);
 
 
 
@@ -253,9 +253,8 @@ const CalendarPage: React.FC = () => {
                     onClick={() => handleSelectRecipe(recipe)}
                     className="cursor-pointer border hover:border-yellow-400 rounded-xl shadow-sm overflow-hidden transition bg-white"
                   >
-                    {/* Acronym Badge with Gradient */}
+
                     <div className="h-35 flex items-center justify-center text-white text-xl font-bold bg-gradient-to-r from-green-300 to-blue-400">
-                      {/* "relative bg-gradient-to-r from-green-300 to-blue-300 h-32 flex items-center justify-center" */}
                       {getAcronym(recipe.title)}
                     </div>
 

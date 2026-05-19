@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { NutritionCoach } from './_components/NutritionCoach';
+import { NutritionCoach } from "@/components/dashboard/chat/NutritionCoach";
 
 const Chat: React.FC = () => {
   return (

@@ -36,8 +36,8 @@ const SkeletonCheckboxGroup: React.FC = () => (
 );
 
 const Preferences: React.FC = () => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const { data: session, status: _status } = useSession();
+  const _router = useRouter();
   const [userPreferences, setUserPreferences] = useState({
     name: '',
     age: 0,
@@ -60,7 +60,7 @@ const Preferences: React.FC = () => {
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
 
-  const fetchUserPreferences = async () => {
+  const fetchUserPreferences = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -74,7 +74,6 @@ const Preferences: React.FC = () => {
       data.goal = formatEnumString(data.goal)
       data.activityLevel = formatEnumString(data.activityLevel)
       setUserPreferences(response.data);
-      console.log(userPreferences.activityLevel)
     } catch (err: any) {
       console.error('Error fetching user preferences', err);
       setError(err.message || 'Failed to load preferences.');
@@ -82,12 +81,12 @@ const Preferences: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session?.user?.id, BACKEND_URL]);
 
   // Get the info from the backend on mount
   useEffect(() => {
     fetchUserPreferences();
-  }, []);
+  }, [fetchUserPreferences]);
 
   if (loading) {
     return (

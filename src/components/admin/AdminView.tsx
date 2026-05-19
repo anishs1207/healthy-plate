@@ -6,8 +6,10 @@ import {
     Select, SelectTrigger, SelectValue, SelectContent, SelectItem
 } from "@/components/ui/select";
 import {
-    Bug, ClipboardList, Pencil, Trash, ArrowRightLeft, CheckCircle, Loader2, X, PlusCircle, StickyNote
+    Bug, ClipboardList, Pencil, Trash, ArrowRightLeft, CheckCircle, Loader2, X, PlusCircle
 } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addTask, updateTask, deleteTask, updateTaskStatus, addIdea, updateIdea, deleteIdea, Task, Idea } from "@/store/slices/tasksSlice";
 
 const sampleEmployees = [
     { id: 1, name: "Anish" },
@@ -15,74 +17,68 @@ const sampleEmployees = [
     { id: 3, name: "Arpan" },
 ];
 
-export default function AdminView({ goBack }: any) {
-    const [employeesTasks, setEmployeesTasks] = useState({});
+export default function AdminView({ goBack: _goBack }: any) {
+    const dispatch = useAppDispatch();
+    const tasks = useAppSelector(state => state.tasks.tasks);
+    const _ideas = useAppSelector(state => state.tasks.ideas);
+
     const [bugTitle, setBugTitle] = useState("");
     const [taskTitle, setTaskTitle] = useState("");
     const [deadline, setDeadline] = useState("");
     const [selectedEmployee, setSelectedEmployee] = useState("");
-    const [editingTask, setEditingTask] = useState(null);
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-    // 🧠 Ideation Notes State
-    const [ideas, setIdeas] = useState([]);
     const [newIdea, setNewIdea] = useState("");
-    const [editingIdea, setEditingIdea] = useState(null);
-
-    const assign = (empId, item) => {
-        setEmployeesTasks(prev => ({
-            ...prev,
-            [empId]: [...(prev[empId] || []), item]
-        }));
-    };
-
-    const updateTasks = (empId, newTasks) => {
-        setEmployeesTasks(prev => ({ ...prev, [empId]: newTasks }));
-    };
+    const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
 
     const handleAddBug = () => {
         if (!bugTitle || !selectedEmployee) return;
-        assign(+selectedEmployee, { id: Date.now(), type: "bug", title: bugTitle, status: "todo" });
+        dispatch(addTask({ id: Date.now(), type: "bug", title: bugTitle, status: "todo", desc: "", priority: "high", assigneeId: +selectedEmployee }));
         setBugTitle(""); setSelectedEmployee("");
     };
 
     const handleAddTask = () => {
         if (!taskTitle || !selectedEmployee || !deadline) return;
-        assign(+selectedEmployee, { id: Date.now(), type: "task", title: taskTitle, deadline, status: "todo" });
+        dispatch(addTask({ id: Date.now(), type: "task", title: taskTitle, deadline, status: "todo", desc: "", priority: "medium", assigneeId: +selectedEmployee }));
         setTaskTitle(""); setDeadline(""); setSelectedEmployee("");
     };
 
-    const deleteTask = (empId, id) => {
-        updateTasks(empId, employeesTasks[empId].filter(t => t.id !== id));
+    const handleDeleteTask = (id: string | number) => {
+        dispatch(deleteTask(id));
     };
 
-    const modifyTask = (empId, updated) => {
-        updateTasks(empId, employeesTasks[empId].map(t => t.id === updated.id ? updated : t));
+    const handleModifyTask = (updated: Task) => {
+        dispatch(updateTask(updated));
     };
 
-    const cycleStatus = (task) => {
-        const order = ["todo", "doing", "done"];
+    const cycleStatus = (task: Task) => {
+        const order = ["todo", "doing", "done"] as const;
         return order[(order.indexOf(task.status) + 1) % order.length];
     };
 
     const handleSaveEdit = () => {
-        modifyTask(editingTask.empId, editingTask);
-        setEditingTask(null);
+        if (editingTask) {
+            handleModifyTask(editingTask);
+            setEditingTask(null);
+        }
     };
 
     // ✅ Ideation Functions
-    const addIdea = () => {
+    const handleAddIdea = () => {
         if (!newIdea.trim()) return;
-        setIdeas([...ideas, { id: Date.now(), content: newIdea }]);
+        dispatch(addIdea({ id: Date.now(), content: newIdea }));
         setNewIdea("");
     };
 
     const saveEditedIdea = () => {
-        setIdeas(ideas.map(i => i.id === editingIdea.id ? editingIdea : i));
-        setEditingIdea(null);
+        if (editingIdea) {
+            dispatch(updateIdea(editingIdea));
+            setEditingIdea(null);
+        }
     };
 
-    const deleteIdea = (id) => {
-        setIdeas(ideas.filter(i => i.id !== id));
+    const _handleDeleteIdea = (id: string | number) => {
+        dispatch(deleteIdea(id));
     };
 
     return (
@@ -105,13 +101,13 @@ export default function AdminView({ goBack }: any) {
                     }}
                     className="bg-neutral-800 text-neutral-200 p-2 rounded-md w-full min-h-[60px] max-h-[150px] overflow-y-auto resize-none outline-none"
                 />
-                <Button onClick={addIdea} className="h-auto">
+                <Button onClick={handleAddIdea} className="h-auto">
                     <PlusCircle size={16} className="mr-1" /> Add
                 </Button>
             </div>
 
 
-            {/* TASK + BUG ASSIGNMENT UI (unchanged) */}
+            {/* TASK + BUG ASSIGNMENT UI */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-xl">
                     <div className="flex items-center gap-2 mb-3 text-neutral-200"><Bug size={18} /> Add Bug</div>
@@ -145,16 +141,16 @@ export default function AdminView({ goBack }: any) {
                     <div key={emp.id} className="bg-neutral-900 p-4 rounded-xl border-neutral-800">
                         <h3 className="font-semibold text-neutral-200 mb-3">{emp.name}</h3>
                         <ul className="space-y-3 text-sm text-neutral-400">
-                            {(employeesTasks[emp.id] || []).map(task => (
+                            {tasks.filter(t => t.assigneeId === emp.id).map(task => (
                                 <li key={task.id} className="bg-neutral-800 p-3 rounded-lg space-y-2">
                                     <div className="flex justify-between">
                                         <span className="text-xs px-2 py-1 bg-neutral-700 rounded">{task.type === "bug" ? "🐞 BUG" : "📋 TASK"}</span>
                                         <div className="flex gap-2">
-                                            <button onClick={() => modifyTask(emp.id, { ...task, status: cycleStatus(task) })} className="text-blue-400">
+                                            <button onClick={() => dispatch(updateTaskStatus({ id: task.id, status: cycleStatus(task) }))} className="text-blue-400">
                                                 {task.status === "todo" ? <Loader2 size={16} /> : task.status === "doing" ? <ArrowRightLeft size={16} /> : <CheckCircle size={16} />}
                                             </button>
-                                            <button className="text-yellow-400" onClick={() => setEditingTask({ ...task, empId: emp.id })}><Pencil size={16} /></button>
-                                            <button className="text-red-400" onClick={() => deleteTask(emp.id, task.id)}><Trash size={16} /></button>
+                                            <button className="text-yellow-400" onClick={() => setEditingTask(task)}><Pencil size={16} /></button>
+                                            <button className="text-red-400" onClick={() => handleDeleteTask(task.id)}><Trash size={16} /></button>
                                         </div>
                                     </div>
                                     <div className="text-neutral-200 font-medium">{task.title}</div>

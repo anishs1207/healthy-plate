@@ -11,15 +11,12 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search")?.toLowerCase() || "";
     const ownerId = searchParams.get('userId');
 
-    console.log(ownerId);
-
     if (!ownerId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
-  }
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
 
     const skip = (page - 1) * limit;
 
-    // Count recipes that match title OR keywords
     const totalCount = await prisma.recipe.count({
       where: {
         ownerId,
@@ -41,7 +38,6 @@ export async function GET(req: NextRequest) {
 
     const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
-    // Fetch paginated recipes that match title OR keywords
     const recipes = await prisma.recipe.findMany({
       where: {
         ownerId,

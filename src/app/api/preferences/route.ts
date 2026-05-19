@@ -60,32 +60,12 @@ export async function POST(req: NextRequest) {
       preferredCuisines,
     } = body;
 
-    console.log({
-      name,
-      age,
-      calorieRequirement,
-      proteinRequirement,
-      weight,
-      height,
-      workoutCommitment,
-      dietaryPreferences,
-      allergies,
-      preferredCuisines,
-    })
-
     let {
       goal,
       activityLevel
     } = body;
 
-    console.log({
-      goal,
-      activityLevel,
-    })
-
     const userId = req.headers.get("user-id");
-
-    
 
     function toEnumFormat(value: string): string {
       return value.toUpperCase().replace(/ /g, "_");
@@ -106,9 +86,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid activityLevel" }, { status: 400 });
     }
 
-    
-
-
     const arraysToValidate = [
       { name: "dietaryPreferences", value: dietaryPreferences },
       { name: "preferredCuisines", value: preferredCuisines },
@@ -126,8 +103,6 @@ export async function POST(req: NextRequest) {
         error: "Workout commitment must be a number between 1 and 7",
       }, { status: 400 });
     }
-
-    console.log ("works")
 
     if (typeof height !== "number") {
       return NextResponse.json({
@@ -152,8 +127,6 @@ export async function POST(req: NextRequest) {
     proteinRequirement,
   },
 });
-
-  console.log (1);
 
     return NextResponse.json({ success: true, user: updatedUser });
 

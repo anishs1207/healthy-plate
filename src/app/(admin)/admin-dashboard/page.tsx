@@ -10,7 +10,7 @@ import {
     UserFeedbackStream,
     AdminNotificationSender,
     MyWork
-} from "./_components";
+} from "@/components/admin";
 import { Workflow, Share2, MessageSquare, Users, Bell, Menu, X } from "lucide-react";
 
 export default function Home() {
@@ -72,7 +72,6 @@ export default function Home() {
                             </button>
                         ))}
 
-                        {/* 🚀 Go To Chat Button */}
                         <button
                             onClick={goToChatPage}
                             className="cursor-pointer px-4 py-2 rounded-md text-sm bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700"
@@ -106,7 +105,6 @@ export default function Home() {
                             </button>
                         ))}
 
-                        {/* 📱 Mobile Chat Button */}
                         <button
                             onClick={goToChatPage}
                             className="cursor-pointer w-full text-left px-5 py-3 text-sm bg-zinc-800 text-white hover:bg-zinc-700"

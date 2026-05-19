@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect } from 'react';
-import { Navbar, Footer, Hero, User, Features, CTA, FAQSection, UseCasesSection } from "./_components"
+import { Navbar, Footer, Hero, User, Features, CTA, FAQSection, UseCasesSection } from "@/components/landing";
 
 const LandingPage: React.FC = () => {
   useEffect(() => {

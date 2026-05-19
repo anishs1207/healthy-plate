@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import RecipeGenerator from './_components/RecipeGenerator';
-import RecipeManual from './_components/RecipeManual';
+import RecipeGenerator from '@/components/dashboard/generate/RecipeGenerator';
+import RecipeManual from '@/components/dashboard/generate/RecipeManual';
 
 const Generate: React.FC = () => {
   const [mode, setMode] = useState<'AI' | 'Manual'>('AI');

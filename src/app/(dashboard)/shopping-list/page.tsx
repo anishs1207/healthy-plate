@@ -51,7 +51,7 @@ const ShoppingList: React.FC = () => {
   const [newIngredientName, setNewIngredientName] = useState('');
   const [newMealType, setNewMealType] = useState<'Breakfast' | 'Lunch' | 'Dinner' | ''>('');
   const [newDayTag, setNewDayTag] = useState<'Today' | 'Tomorrow' | ''>('');
-  const [filter, setFilter] = useState<'Personal'>('Personal');
+  const [filter, _setFilter] = useState<'Personal'>('Personal');
   const [loadingPersonalList, setLoadingPersonalList] = useState(false);
   const [addingItem, setAddingItem] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
@@ -66,9 +66,9 @@ const ShoppingList: React.FC = () => {
       return;
     }
 
-  }, [status, session]);
+  }, [status, session, router]);
 
-  const getPersonalListItems = async () => {
+  const getPersonalListItems = React.useCallback(async () => {
     setLoadingPersonalList(true);
     try {
       const userId = session?.user?.id;
@@ -107,11 +107,11 @@ const ShoppingList: React.FC = () => {
     } finally {
       setLoadingPersonalList(false);
     }
-  };
+  }, [session?.user?.id, BACKEND_URL]);
 
   useEffect(() => {
     if (filter === 'Personal') getPersonalListItems();
-  }, [filter]);
+  }, [filter, getPersonalListItems]);
 
   if (status === 'loading') {
     return (

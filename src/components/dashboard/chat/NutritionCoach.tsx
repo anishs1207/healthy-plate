@@ -65,7 +65,7 @@ export const NutritionCoach: React.FC = () => {
     if (status === 'authenticated') {
       fetchUserPreferences();
     }
-  }, [session, status]);
+  }, [session, status, BACKEND_URL]);
 
 
   useEffect(() => {
@@ -228,7 +228,6 @@ ${prefs.allergies?.length ? `\nAllergies: ${prefs.allergies.join(', ')}` : ''}
           </div>
         </div>
       </div>
-      {/* 
       <div className="flex flex-col gap-2 mb-4 p-4">
         <label className="text-sm text-gray-700 dark:text-gray-300">Enter your Gemini API Key</label>
         <div className="relative">
@@ -247,7 +246,7 @@ ${prefs.allergies?.length ? `\nAllergies: ${prefs.allergies.join(', ')}` : ''}
             {showApiKey ? "Hide" : "Show"}
           </button>
         </div>
-      </div> */}
+      </div>
 
       <MessageList messages={messages} />
 

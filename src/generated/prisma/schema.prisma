@@ -26,7 +26,6 @@ model User {
   recipes             Recipe[]           @relation("UserRecipes")
   MealPlan            MealPlan[]
   PersonalList        PersonalListItem[]
-  // added todo generate again here
   credits             BigInt             @default(10)
   tierPlan            Plans              @default(FREE)
 }
