@@ -9,7 +9,7 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "prepare": "husky"
+    "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && husky || true"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",
@@ -69,6 +69,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "eslint-plugin-storybook": "^10.1.11",
+    "husky": "^9.1.7",
     "jiti": "^2",
     "playwright": "^1.57.0",
     "prisma": "^6.6.0",
